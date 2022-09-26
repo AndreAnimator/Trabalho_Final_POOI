@@ -11,8 +11,8 @@
 public class Cliente {
     private String nome;
     
-    void cliente(String nome) {
-        this.nome = nome;
+    Cliente() {
+        this.nome = "";
     }
     
     public String AcessarNomeCliente() {
