@@ -1,0 +1,175 @@
+// -----------------------------------------------
+// Trabalho POOI
+// Integrantes do grupo:
+// André Vitor da Silva Cardoso
+// Pedro Henrique Campos Lorenzetti
+// Gabriel Francisco Dib Domingues Silva
+// -----------------------------------------------
+/**
+* Classe utilizada para armazenar e alterar os atributos de objetos Cliente
+*/
+public class Cliente {
+    private String nome;
+    
+    void cliente(String nome) {
+        this.nome = nome;
+    }
+    
+    public String AcessarNomeCliente() {
+        return nome;
+    }
+    
+    public void ModificarNomeCliente(String nome1) {
+        nome = nome1;
+    }
+}
+/**
+* Interface utilizada para ser implementada pela classe GerenciadorClientesArquivos
+*/
+public interface GerenciadorClientes {
+    public void gravarClientes(String nome);
+    public void lerClientes();
+}
+/**
+* Interface que implementa a interface GerenciadorClientes, lê e grava os dados armezenados no arquivo.tx
+*/
+import java.io.*;
+public class GerenciadorClientesArquivos implements GerenciadorClientes {
+    @Override
+    public void gravarClientes(String nome) {
+        BufferedWriter escritor = null;
+		try {
+			escritor = new BufferedWriter(new FileWriter("arquivo.txt", true));
+			escritor.write(nome);
+			escritor.newLine();
+		} catch (IOException exc) {
+			System.out.println("Erro de I/O" + exc);
+		} finally {
+			try {
+				if (escritor != null)
+					escritor.close();
+			} catch (IOException exc) {
+				System.out.println("Fechando arquivo" + exc);
+			}
+		}
+    }
+    @Override
+    public void lerClientes(){
+        String linha;
+		try (BufferedReader br = new BufferedReader(new FileReader("arquivo.txt"))) {
+			while ((linha = br.readLine()) != null) {
+				System.out.println(linha);
+			}
+		} catch (IOException exc) {
+			System.out.println("Erro de I/O: " + exc);
+		}
+    }
+}
+/**
+* Classe que possibilita a entrada de dados pelo console
+*/
+import java.io.*;
+public class Console {
+    public String leString(){
+        try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			return reader.readLine();
+		} catch (IOException e) {
+			throw new RuntimeException("Erro ao ler o dado do teclado");
+		}
+    }
+}
+/**
+* Classe com o método feito para achar clientes (requisito f.)
+*/
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class AchaCliente {
+    public void achandoCliente(String Nome){
+        String linha;
+        try (BufferedReader br = new BufferedReader(new FileReader("arquivo.txt"))) {
+            while ((linha = br.readLine()) != null) {
+                if(Nome.toUpperCase().equals(linha.toUpperCase())) {
+                    System.out.println(Nome + " foi encontrado");
+                }
+            }
+        } catch (IOException exc) {
+            System.out.println("Erro de I/O: " + exc);
+        }
+    }
+}
+/**
+* Classe App que faz uso dos objetos, métodos, classes e atributos
+*/
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.InputMismatchException;
+public class ClienteApp {
+    public static void main(String[] arg){
+        ArrayList<Cliente> clientes = new ArrayList<Cliente>();
+        Console console = new Console();
+        GerenciadorClientesArquivos gerenciador = new GerenciadorClientesArquivos();
+        System.out.println("O QUE VOCE DESEJA FAZER?");
+        System.out.println("1 = insere 10 pessoas.");
+        System.out.println("2 = procura cliente.");
+        System.out.println("3 = imprime nomes.");
+        System.out.println("4 = fechar programa.");
+        
+        AchaCliente Ac = new AchaCliente();
+        int escolha;
+        Scanner Sc = new Scanner(System.in);
+        try {
+	        do{
+	        	escolha = Sc.nextInt();
+	            switch(escolha){
+	            case 1:
+			String nomeCliente;
+	                for (int i = 0; i < 10; i++) {
+	                	System.out.println("Insira o nome do cliente nº " + i + ": ");
+	                	clientes.add(new Cliente());
+				try {
+					clientes.get(i).ModificarNomeCliente(console.leString());
+					nomeCliente = clientes.get(i).AcessarNomeCliente();
+					for(int j = 0; j < nomeCliente.length(); j++){
+						if(nomeCliente[j] > 0 && nomeCliente[j] < 10){
+							throw new InvalidTypeForName(nomeCliente);
+						}
+					}
+				}catch (InvalidTypeForName exc){
+					System.out.println(exc);
+				}
+				gerenciador.gravarClientes(clientes.get(i).AcessarNomeCliente());
+	                }
+	            break;
+	            case 2:
+	                System.out.println("insira nome do cliente que deseja procurar");
+	                Ac.achandoCliente(console.leString()); 
+	            break;
+	            case 3:
+	                System.out.println("Imprimindo os nomes: ");
+	                gerenciador.lerClientes();
+	            break;
+	            }
+	        }while(escolha != 4);
+        }catch(InputMismatchException inputMismatchException) {
+    		System.out.println("Tipo colocado diferente de Int");
+    	}
+		Sc.close();
+    }
+}
+/**
+* Classe InvalidTyperForName para o tratamento de exceções personalizadas
+*/
+public class InvalidTypeForName extends Exception {
+	private String nome;
+	
+	InvalidTypeForName(String nome) {
+		this.nome = nome;
+	}
+
+	public String toString() {
+		return "Caractere inválido na string insirida: " + nome;
+	}
+}
