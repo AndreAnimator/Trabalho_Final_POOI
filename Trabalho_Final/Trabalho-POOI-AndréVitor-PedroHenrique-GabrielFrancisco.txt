@@ -125,22 +125,24 @@ public class ClienteApp {
 	        	escolha = Sc.nextInt();
 	            switch(escolha){
 	            case 1:
-			String nomeCliente;
+	            	String nomeCliente = null;
 	                for (int i = 0; i < 10; i++) {
 	                	System.out.println("Insira o nome do cliente nº " + i + ": ");
 	                	clientes.add(new Cliente());
-				try {
-					clientes.get(i).ModificarNomeCliente(console.leString());
-					nomeCliente = clientes.get(i).AcessarNomeCliente();
-					for(int j = 0; j < nomeCliente.length(); j++){
-						if(nomeCliente[j] > 0 && nomeCliente[j] < 10){
-							throw new InvalidTypeForName(nomeCliente);
+	                	try {
+							clientes.get(i).ModificarNomeCliente(console.leString());
+							nomeCliente = clientes.get(i).AcessarNomeCliente();
+							char[] carNome = nomeCliente.toCharArray();
+							for(char caracter : carNome){
+								int ascii = (int) caracter;
+								if(ascii > 47 && ascii < 58){
+									throw new InvalidTypeForName(nomeCliente);
+								}
+							}
+						}catch (InvalidTypeForName exc){
+							System.out.println(exc);
 						}
-					}
-				}catch (InvalidTypeForName exc){
-					System.out.println(exc);
-				}
-				gerenciador.gravarClientes(clientes.get(i).AcessarNomeCliente());
+						gerenciador.gravarClientes(clientes.get(i).AcessarNomeCliente());
 	                }
 	            break;
 	            case 2:
